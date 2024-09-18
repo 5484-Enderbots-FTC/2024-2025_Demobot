@@ -23,10 +23,10 @@ public class TestTele extends LinearOpMode {
     //ElapsedTime servoTime = new ElapsedTime();
 
     //motors
-    public DcMotor mtrBL;
-    public DcMotor mtrBR;
-    public DcMotor mtrFL;
-    public DcMotor mtrFR;
+    //public DcMotor mtrBL;
+    //public DcMotor mtrBR;
+    //public DcMotor mtrFL;
+    //public DcMotor mtrFR;
 
 
     //copy and paste from LiftCode.jav

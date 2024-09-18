@@ -69,7 +69,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     private TrajectoryFollower follower;
 
-    private DcMotorEx mtrFL, mtrBL, mtrBR, mtrFR;
+    private DcMotorEx m4, m1, m3, m2;
     private List<DcMotorEx> motors;
 
     private IMU imu;
@@ -94,12 +94,12 @@ public class SampleMecanumDrive extends MecanumDrive {
 
 
 
-        mtrFL = hardwareMap.get(DcMotorEx.class, "mtrFL");
-        mtrBL = hardwareMap.get(DcMotorEx.class, "mtrBL");
-        mtrBR = hardwareMap.get(DcMotorEx.class, "mtrBR");
-        mtrFR = hardwareMap.get(DcMotorEx.class, "mtrFR");
+        //mtrFL = hardwareMap.get(DcMotorEx.class, "mtrFL");
+        //mtrBL = hardwareMap.get(DcMotorEx.class, "mtrBL");
+        //mtrBR = hardwareMap.get(DcMotorEx.class, "mtrBR");
+        //mtrFR = hardwareMap.get(DcMotorEx.class, "mtrFR");
 
-        motors = Arrays.asList(mtrFL, mtrBL, mtrBR, mtrFR);
+        motors = Arrays.asList(m4, m4, m3, m2);
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
@@ -118,10 +118,10 @@ public class SampleMecanumDrive extends MecanumDrive {
         }
 
         // TODO: reverse any motors using DcMotor.setDirection()
-        mtrFR.setDirection(DcMotorSimple.Direction.FORWARD);
-        mtrBR.setDirection(DcMotorSimple.Direction.FORWARD);
-        mtrFL.setDirection(DcMotorSimple.Direction.REVERSE);
-        mtrBL.setDirection(DcMotorSimple.Direction.REVERSE);
+       // mtrFR.setDirection(DcMotorSimple.Direction.FORWARD);
+       // mtrBR.setDirection(DcMotorSimple.Direction.FORWARD);
+       // mtrFL.setDirection(DcMotorSimple.Direction.REVERSE);
+       // mtrBL.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         List<Integer> lastTrackingEncPositions = new ArrayList<>();
@@ -282,10 +282,10 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     @Override
     public void setMotorPowers(double v, double v1, double v2, double v3) {
-        mtrFL.setPower(v);
-        mtrBL.setPower(v1);
-        mtrBR.setPower(v2);
-        mtrFR.setPower(v3);
+        //mtrFL.setPower(v);
+        //mtrBL.setPower(v1);
+        //mtrBR.setPower(v2);
+        //mtrFR.setPower(v3);
     }
 
     @Override

@@ -28,12 +28,12 @@ public class CenterstageTeleop extends LinearOpMode {
     //ElapsedTime servoTime = new ElapsedTime();
 
     //motors
-    public DcMotor mtrBL;
-    public DcMotor mtrBR;
-    public DcMotor mtrFL;
-    public DcMotor mtrFR;
-    public DcMotor mtrI;
-    public DcMotor mtrHang;
+   // public DcMotor mtrBL;
+   // public DcMotor mtrBR;
+   // public DcMotor mtrFL;
+   // public DcMotor mtrFR;
+   // public DcMotor mtrI;
+    // public DcMotor mtrHang;
 
     //limit switch
     //TouchSensor limitSwitch;

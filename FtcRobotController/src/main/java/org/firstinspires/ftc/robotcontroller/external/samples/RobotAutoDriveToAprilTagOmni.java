@@ -97,10 +97,10 @@ public class RobotAutoDriveToAprilTagOmni extends LinearOpMode
     final double MAX_AUTO_STRAFE= 0.5;   //  Clip the approach speed to this max value (adjust for your robot)
     final double MAX_AUTO_TURN  = 0.3;   //  Clip the turn speed to this max value (adjust for your robot)
 
-    private DcMotor mtrFL   = null;  //  Used to control the left front drive wheel
-    private DcMotor mtrFR  = null;  //  Used to control the right front drive wheel
-    private DcMotor mtrBL   = null;  //  Used to control the left back drive wheel
-    private DcMotor mtrBR   = null;  //  Used to control the right back drive wheel
+   // private DcMotor mtrFL   = null;  //  Used to control the left front drive wheel
+   // private DcMotor mtrFR  = null;  //  Used to control the right front drive wheel
+   // private DcMotor mtrBL   = null;  //  Used to control the left back drive wheel
+    //private DcMotor mtrBR   = null;  //  Used to control the right back drive wheel
 
     private static final boolean USE_WEBCAM = true;  // Set true to use a webcam, or false for a phone camera
     private static final int DESIRED_TAG_ID = 0;     // Choose the tag you want to approach or set to -1 for ANY tag.
@@ -121,18 +121,18 @@ public class RobotAutoDriveToAprilTagOmni extends LinearOpMode
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must match the names assigned during the robot configuration.
         // step (using the FTC Robot Controller app on the phone).
-        mtrFL  = hardwareMap.get(DcMotor.class, "mtrFL");
-        mtrFR = hardwareMap.get(DcMotor.class, "mtrFR");
-        mtrBL  = hardwareMap.get(DcMotor.class, "mtrBL");
-        mtrBR = hardwareMap.get(DcMotor.class, "mtrBR");
+        //mtrFL  = hardwareMap.get(DcMotor.class, "mtrFL");
+        //mtrFR = hardwareMap.get(DcMotor.class, "mtrFR");
+        //mtrBL  = hardwareMap.get(DcMotor.class, "mtrBL");
+        //mtrBR = hardwareMap.get(DcMotor.class, "mtrBR");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        mtrFL.setDirection(DcMotor.Direction.REVERSE);
-        mtrBL.setDirection(DcMotor.Direction.REVERSE);
-        mtrFR.setDirection(DcMotor.Direction.FORWARD);
-        mtrBR.setDirection(DcMotor.Direction.FORWARD);
+        //mtrFL.setDirection(DcMotor.Direction.REVERSE);
+        //mtrBL.setDirection(DcMotor.Direction.REVERSE);
+        //mtrFR.setDirection(DcMotor.Direction.FORWARD);
+        //mtrBR.setDirection(DcMotor.Direction.FORWARD);
 
         if (USE_WEBCAM)
             setManualExposure(6, 250);  // Use low exposure time to reduce motion blur
@@ -226,10 +226,10 @@ public class RobotAutoDriveToAprilTagOmni extends LinearOpMode
         }
 
         // Send powers to the wheels.
-        mtrFL.setPower(leftFrontPower);
-        mtrFR.setPower(rightFrontPower);
-        mtrBL.setPower(leftBackPower);
-        mtrBR.setPower(rightBackPower);
+        //mtrFL.setPower(leftFrontPower);
+        //mtrFR.setPower(rightFrontPower);
+        //mtrBL.setPower(leftBackPower);
+        //mtrBR.setPower(rightBackPower);
     }
 
     /**
