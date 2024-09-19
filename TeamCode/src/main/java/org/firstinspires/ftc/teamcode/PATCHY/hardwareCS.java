@@ -120,7 +120,7 @@ public class hardwareCS {
 
         m4 = hw.get(DcMotorEx.class, "m4"); // mtrFL
         m4.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        m4.setDirection(DcMotorEx.Direction.FORWARD);
+        m4.setDirection(DcMotorEx.Direction.REVERSE);
 
         m2 = hw.get(DcMotorEx.class, "m2"); // mtrFL
         m2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
