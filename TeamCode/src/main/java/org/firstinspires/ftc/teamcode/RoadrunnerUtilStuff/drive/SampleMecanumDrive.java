@@ -94,10 +94,10 @@ public class SampleMecanumDrive extends MecanumDrive {
 
 
 
-        //mtrFL = hardwareMap.get(DcMotorEx.class, "mtrFL");
-        //mtrBL = hardwareMap.get(DcMotorEx.class, "mtrBL");
-        //mtrBR = hardwareMap.get(DcMotorEx.class, "mtrBR");
-        //mtrFR = hardwareMap.get(DcMotorEx.class, "mtrFR");
+        m4 = hardwareMap.get(DcMotorEx.class, "m4");
+        m1 = hardwareMap.get(DcMotorEx.class, "m1");
+        m3 = hardwareMap.get(DcMotorEx.class, "m3");
+        m2 = hardwareMap.get(DcMotorEx.class, "m2");
 
         motors = Arrays.asList(m4, m4, m3, m2);
 
