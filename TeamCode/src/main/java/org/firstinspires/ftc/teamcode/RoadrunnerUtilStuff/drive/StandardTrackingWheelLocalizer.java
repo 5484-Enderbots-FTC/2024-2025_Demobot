@@ -7,6 +7,8 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.localization.ThreeTrackingWheelLocalizer;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.util.Encoder;
 
 import java.util.Arrays;
@@ -27,6 +29,15 @@ import java.util.List;
  */
 @Config
 public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer {
+
+    // TODO Put a console log displaying where the AppUtil.ROOT_FOLDER is so we can see what road
+    // runner is writing.
+    //AppUtil.ROOT_FOLDER
+    //telemetry.addData
+
+    // TODO Find a good location of where it would be easiest to change the tuning from a file
+
+    // TODO Implement reading those values from that file.
     public static double TICKS_PER_REV = 8192;
     public static double WHEEL_RADIUS = 0.688975; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
