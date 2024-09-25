@@ -14,7 +14,6 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.PATCHY.hardwareCS;
-import org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.PATCHY.pocCode.INTAKE.IntakeServo;
 //
 
@@ -23,176 +22,18 @@ import org.firstinspires.ftc.teamcode.PATCHY.pocCode.INTAKE.IntakeServo;
 //@Disabled
 public class CenterstageTeleop extends LinearOpMode {
 
-    ElapsedTime runtime = new ElapsedTime();
-
-    //ElapsedTime servoTime = new ElapsedTime();
-
-    //motors
-   public DcMotor m1;
-    public DcMotor m3;
-    public DcMotor m4;
-    public DcMotor m2;
-   // public DcMotor mtrI;
-    // public DcMotor mtrHang;
-
-    //limit switch
-    //TouchSensor limitSwitch;
-
-    //time
-
-    //servos when we get to it
-    public Servo intakeLeft;
-    public Servo intakeRight;
-    public Servo svrHang;
-
-    //copy and paste from LiftCode.java
-    public DcMotorEx mtrLift;
-    public DcMotorEx mtrLift2;
-    public Servo armSwing;
-    public Servo gripper;
-    public TouchSensor bottomLimit;
-    public Servo droneLauncher;
-    public Servo DroneShooter;
-
-    //couple variables controlling our lift
-    boolean joggingup = false;
-    boolean joggingdown = false;
-    boolean gripperPressed;
-
-    ElapsedTime servoTime = new ElapsedTime();
-    IntakeServo.intakeState intakePos = IntakeServo.intakeState.intakeOut;
-
-    public double gamepadlsy;
-
-    public double gamepadlsx;
-
-    public int n = 0;
-
-    public int m = 0;
-
-    public boolean currentlyPressing = false;
-
-    //toggle variables for the various toggle buttons
-    public int gripperInt = 0;
-    public boolean oldGripperInt = false;
-    public int intakeArmInt = 0;
-    public boolean oldIntakeArmInt = false;
-    public int armInt = 0;
-    public boolean oldArmInt = false;
-
-
     @Override
     public void runOpMode() throws InterruptedException {
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        hardwareCS drive = new hardwareCS(hardwareMap);
         telemetry.addData("Status", "Initialized");
         telemetry.addLine("Really Chat :|");
-        telemetry.addData("" +
-        "              ⠀⠀⠘⡀⠀⠀⠀have a nice day nerd!⡜⠀⠀⠀\n" +
-                "             * ⠀⠀⠀⠑⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡔⠁⠀⠀⠀\n" +
-                "             * ⠀⠀⠀⠀⠈⠢⢄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠴⠊⠀⠀⠀⠀⠀\n" +
-                "             * ⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⢀⣀⣀⣀⣀⣀⡀⠤⠄⠒⠈⠀⠀⠀⠀⠀⠀⠀⠀\n" +
-                "             * ⠀⠀⠀⠀⠀⠀⠀⠘⣀⠄⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
-                "             * ⠀\n" +
-                "             * ⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠛⠛⠛⠋⠉⠈⠉⠉⠉⠉⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⣿⣿⣿⡿⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⢿⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⣿⣿⡏⣀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣤⣤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠙⢿⣿⣿\n" +
-                "             * ⣿⣿⣿⢏⣴⣿⣷⠀⠀⠀⠀⠀⢾⣿⣿⣿⣿⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⠈⣿⣿\n" +
-                "             * ⣿⣿⣟⣾⣿⡟⠁⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣷⢢⠀⠀⠀⠀⠀⠀⠀⢸⣿\n" +
-                "             * ⣿⣿⣿⣿⣟⠀⡴⠄⠀⠀⠀⠀⠀⠀⠙⠻⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⣿\n" +
-                "             * ⣿⣿⣿⠟⠻⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠶⢴⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⣿\n" +
-                "             * ⣿⣁⡀⠀⠀⢰⢠⣦⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⣿⣿⣿⣿⣿⡄⠀⣴⣶⣿⡄⣿\n" +
-                "             * ⣿⡋⠀⠀⠀⠎⢸⣿⡆⠀⠀⠀⠀⠀⠀⣴⣿⣿⣿⣿⣿⣿⣿⠗⢘⣿⣟⠛⠿⣼\n" +
-                "             * ⣿⣿⠋⢀⡌⢰⣿⡿⢿⡀⠀⠀⠀⠀⠀⠙⠿⣿⣿⣿⣿⣿⡇⠀⢸⣿⣿⣧⢀⣼\n" +
-                "             * ⣿⣿⣷⢻⠄⠘⠛⠋⠛⠃⠀⠀⠀⠀⠀⢿⣧⠈⠉⠙⠛⠋⠀⠀⠀⣿⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⣧⠀⠈⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠟⠀⠀⠀⠀⢀⢃⠀⠀⢸⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⡿⠀⠴⢗⣠⣤⣴⡶⠶⠖⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡸⠀⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⣿⡀⢠⣾⣿⠏⠀⠠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠛⠉⠀⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⣿⣧⠈⢹⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⣿⣿⡄⠈⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⣿⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⣿⣿⣧⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⣿⣿⣿⣦⣄⣀⣀⣀⣀⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡄⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠙⣿⣿⡟⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⠀⠁⠀⠀⠹⣿⠃⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⣿⣿⣿⣿⣿⣿⡿⠛⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢐⣿⣿⣿⣿⣿⣿⣿⣿⣿\n" +
-                "             * ⣿⣿⣿⣿⠿⠛⠉⠉⠁⠀⢻⣿⡇⠀⠀⠀⠀⠀⠀⢀⠈⣿⣿⡿⠉⠛⠛⠛⠉⠉\n" +
-                "             * ⣿⡿⠋⠁⠀⠀⢀⣀⣠⡴⣸⣿⣇⡄⠀⠀⠀⠀⢀⡿⠄⠙⠛⠀⣀⣠⣤⣤⠄\n",0);
         telemetry.addLine("Get your TeleOp! Hot and fresh!");
         telemetry.update();
-        // motors
-        /*mtrBL = hardwareMap.get(DcMotor.class, "mtrBL");
-        mtrBL.setZeroPowerBehavior(BRAKE);
-        mtrBL.setDirection(DcMotor.Direction.FORWARD);
-        mtrBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        mtrBR = hardwareMap.get(DcMotor.class, "mtrBR");
-        mtrBR.setZeroPowerBehavior(BRAKE);
-        mtrBR.setDirection(DcMotor.Direction.REVERSE);
-        mtrBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        mtrFL = hardwareMap.get(DcMotor.class, "mtrFL");
-        mtrFL.setZeroPowerBehavior(BRAKE);
-        mtrFL.setDirection(DcMotor.Direction.FORWARD);
-        mtrFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        mtrFR = hardwareMap.get(DcMotor.class, "mtrFR");
-        mtrFR.setZeroPowerBehavior(BRAKE);
-        mtrFR.setDirection(DcMotor.Direction.REVERSE);
-        mtrFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        mtrI =  hardwareMap.get(DcMotorEx.class, "mtrI");
-        mtrI.setZeroPowerBehavior(BRAKE);
-        mtrI.setDirection(DcMotor.Direction.REVERSE);
-        mtrI.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        mtrHang = hardwareMap.get(DcMotor.class, "mtrHang");
-        mtrHang.setZeroPowerBehavior(BRAKE);
-        mtrHang.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        mtrHang.setDirection(DcMotor.Direction.FORWARD);
-
-        droneLauncher = hardwareMap.get(Servo.class, "svrDrone");
-
-        // hardware initialization code goes here
-        // this needs to correspond with the configuration used
-        mtrLift = hardwareMap.get(DcMotorEx.class, "mtrLift1");
-        mtrLift.setDirection(DcMotorSimple.Direction.REVERSE);
-        mtrLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        mtrLift2 = hardwareMap.get(DcMotorEx.class, "mtrLift2");
-        mtrLift2.setDirection(DcMotorSimple.Direction.FORWARD);
-        mtrLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        gripper = hardwareMap.get(Servo.class, "svrGrip");
-        armSwing = hardwareMap.get(Servo.class, "svrSwing");
-
-        bottomLimit = hardwareMap.get(TouchSensor.class, "BL Lift");
-
-        joggingup = false;
-        joggingdown = false;
-        mtrLift.setVelocity(0);
-        mtrLift2.setVelocity(0);
-        droneLauncher.setPosition(0.0);
-        gripperPressed = false;
-
-        //servos
-        intakeLeft = hardwareMap.get(Servo.class, "leftSvr");
-        intakeRight = hardwareMap.get(Servo.class, "rightSvr");
-        svrHang = hardwareMap.get(Servo.class, "svrHang");
-        svrHang.setPosition(0.53);
-
-        intakeRight.setPosition(1.0);
-        intakeLeft.setPosition(0.027);
-
-        DroneShooter = hardwareMap.get(Servo.class, "svrDrone"); */
-        hardwareCS robot = new hardwareCS();
-        robot.inithardware(hardwareMap);
-//        robot.armSwing.setPosition(0.0);
-//        robot.gripper.setPosition(.37);
+        drive.inithardware(hardwareMap);
 
         //start
         waitForStart();
-        runtime.reset();
 
         while (opModeIsActive()) {
 
@@ -433,9 +274,9 @@ public class CenterstageTeleop extends LinearOpMode {
 
             //hardwareCS file, controls our LEDs
             if (gamepad2.left_trigger >= .9){
-                robot.state = hardwareCS.robotState.liftlowering;
+                drive.state = hardwareCS.robotState.liftlowering;
             }else {
-                robot.state = hardwareCS.robotState.idle;
+                drive.state = hardwareCS.robotState.idle;
             }
             
             //robot.LEDcontrol();

@@ -2,33 +2,74 @@ package org.firstinspires.ftc.teamcode.PATCHY;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import static org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.DriveConstants.MAX_ACCEL;
+import static org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.DriveConstants.MAX_ANG_ACCEL;
+import static org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.DriveConstants.MAX_ANG_VEL;
+import static org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.DriveConstants.MAX_VEL;
+import static org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.DriveConstants.MOTOR_VELO_PID;
+import static org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.DriveConstants.RUN_USING_ENCODER;
+import static org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.DriveConstants.TRACK_WIDTH;
+import static org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.DriveConstants.encoderTicksToInches;
+import static org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.DriveConstants.kA;
+import static org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.DriveConstants.kStatic;
+import static org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.DriveConstants.kV;
+
 import android.util.Size;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
+import com.acmerobotics.roadrunner.drive.DriveSignal;
+import com.acmerobotics.roadrunner.drive.MecanumDrive;
+import com.acmerobotics.roadrunner.followers.HolonomicPIDVAFollower;
+import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
+import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.PATCHY.PIPELINES.bluepropPipeline;
 import org.firstinspires.ftc.teamcode.PATCHY.TELEOP.CenterstageTeleop;
+import org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.StandardTrackingWheelLocalizer;
+import org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.trajectorysequence.TrajectorySequenceBuilder;
+import org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.trajectorysequence.TrajectorySequenceRunner;
+import org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.util.LynxModuleUtil;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.openftc.easyopencv.OpenCvCamera;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
-public class hardwareCS {
+public class hardwareCS extends MecanumDrive {
 
-    public DcMotor m4; //mtrFL
-    public DcMotor m2; // mtrFR
-    public DcMotor m3; // mtrBR
-    public DcMotor m1; // mtrBL
+    public DcMotorEx m4; //mtrFL
+    public DcMotorEx m2; // mtrFR
+    public DcMotorEx m3; // mtrBR
+    public DcMotorEx m1; // mtrBL
 
 //    public DcMotor mtrI;
 //
@@ -36,62 +77,19 @@ public class hardwareCS {
 
     public HardwareMap hw = null;
 
-    //private VisionPortal visionPortal;
-//    public OpenCvCamera webcam;
-
-//    public ColorSensor liftColor;
-//
-//    public DigitalChannel proximityOne;
-//    public DigitalChannel proximityTwo;
-//    public Servo intakeLeft;
-//    public Servo intakeRight;
-//    public Servo svrHang;
-//    public DcMotorEx mtrLift;
-//    public DcMotorEx mtrLift2;
-//    public Servo armSwing;
-//    public Servo gripper;
-//    public TouchSensor bottomLimit;
-//    public Servo droneLauncher;
-//    public Servo DroneShooter;
-//    boolean joggingup;
-//    boolean joggingdown;
-//    boolean gripperPressed;
-
     //auto things
     public String auto;
     public VisionPortal portal;
     public org.firstinspires.ftc.teamcode.PATCHY.PIPELINES.bluepropPipeline bluepropPipeline;
 
-    //public RevBlinkinLedDriver lights;
 
-//    Pose2d visPose;
-//    Pose2d placePose;
-
-    //public RevBlinkinLedDriver blinkin;
-
-    int pixelCount;
-
-    //the one of the flap that falls when the bot starts, im not generally sure what it detects tho tbh
-    //public DigitalChannel flapSns;
-    //arm sensor on the bot, the one at the front
-    //public DigitalChannel armSns;
-
-    //defining the
-//    public RevBlinkinLedDriver.BlinkinPattern
-//            SickColor = RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_WAVES,
-//            Aqua = RevBlinkinLedDriver.BlinkinPattern.AQUA,
-//            black = RevBlinkinLedDriver.BlinkinPattern.BLACK,
-//
-//            blue = RevBlinkinLedDriver.BlinkinPattern.BLUE,
-//            pink = RevBlinkinLedDriver.BlinkinPattern.HOT_PINK;
-
-    public enum robotState{
+    public enum robotState {
         intaking,
         idle,
         liftlowering;
     }
 
-    public enum intakeState{
+    public enum intakeState {
         off,
         intake
     }
@@ -101,13 +99,10 @@ public class hardwareCS {
     public boolean checkSecond;
     public robotState state = robotState.idle;
     public intakeState iState = intakeState.off;
-    public hardwareCS() {
-        //nothing goes in here, just a way to call the class (stolen from FF hardware map)
-    }
+
 
     public void inithardware(HardwareMap thisHwMap) {
         hw = thisHwMap;
-
 
 
         m1 = hw.get(DcMotorEx.class, "m1"); // mtrBL
@@ -126,178 +121,264 @@ public class hardwareCS {
         m2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         m2.setDirection(DcMotorEx.Direction.REVERSE);
 
-//        mtrI = hw.get(DcMotorEx.class, "mtrI");
-//        mtrI.setZeroPowerBehavior(BRAKE);
-//        mtrI.setDirection(DcMotor.Direction.REVERSE);
-//        mtrI.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//
-//        mtrHang = hw.get(DcMotor.class, "mtrHang");
-//        mtrHang.setZeroPowerBehavior(BRAKE);
-//        mtrHang.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        mtrHang.setDirection(DcMotor.Direction.FORWARD);
-//
-//        droneLauncher = hw.get(Servo.class, "svrDrone");
-//
-//        mtrLift = hw.get(DcMotorEx.class, "mtrLift1");
-//        mtrLift.setDirection(DcMotorSimple.Direction.FORWARD);
-//        mtrLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        mtrLift.setZeroPowerBehavior(BRAKE);
-//
-//        mtrLift2 = hw.get(DcMotorEx.class, "mtrLift2");
-//        mtrLift2.setDirection(DcMotorSimple.Direction.REVERSE);
-//        mtrLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        mtrLift2.setZeroPowerBehavior(BRAKE);
-//
-//        gripper = hw.get(Servo.class, "svrGrip");
-//        armSwing = hw.get(Servo.class, "svrSwing");
-//
-//        bottomLimit = hw.get(TouchSensor.class, "BL Lift");
-
-//        liftColor = hw.get(ColorSensor.class, "clrSensor");
-
-//        intakeLeft = hw.get(Servo.class, "leftSvr");
-//        intakeRight = hw.get(Servo.class, "rightSvr");
-//        svrHang = hw.get(Servo.class, "svrHang");
-//        svrHang.setPosition(0.53);
-
-        //intakeRight.setPosition(0.94);
-        //intakeLeft.setPosition(0.027);
-
-//        proximityOne = hw.get(DigitalChannel.class, "nut1");
-//        proximityTwo = hw.get(DigitalChannel.class, "nut2");
-//        flapSns = hw.get(DigitalChannel.class, "flap");
-//        armSns = hw.get(DigitalChannel.class, "armSns");
-//
-//        lights = hw.get(RevBlinkinLedDriver.class, "lights");
-
-       // blinkin = hw.get(RevBlinkinLedDriver.class, "blinkin");
-
-//        joggingup = false;
-//        joggingdown = false;
-//        mtrLift.setVelocity(0);
-//        mtrLift2.setVelocity(0);
-//        droneLauncher.setPosition(1.0);
-//        armSwing.setPosition(0.1);
-//        gripper.setPosition(.6);
-//        gripperPressed = false;
-
-        // set digital channel to input mode.
-//        proximityOne.setMode(DigitalChannel.Mode.INPUT);
-//        proximityTwo.setMode(DigitalChannel.Mode.INPUT);
+//        }
+//    }
 
 
     }
 
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0);
 
-//    public void initWebcamBlue() {
-//        bluepropPipeline = new bluepropPipeline();
-//
-//        portal = new VisionPortal.Builder()
-//                .setCamera(hw.get(WebcamName.class, "Webcam 1"))
-//                .setCameraResolution(new Size(1280, 720))
-//                .addProcessor(bluepropPipeline)
-//                .build();
-//
-//        //portal.saveNextFrameRaw(String.format(Locale.US, "CameraFrameCapture-%06d"));
-//        //if (portal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-//            //telemetry.addData("Camera", "Waiting");
-//           //telemetry.update();
-//            /*while (!isStopRequested() && (portal.getCameraState() != VisionPortal.CameraState.STREAMING)) {
-//                sleep(20);
-//            }*/
-//            //telemetry.addData("Camera", "Ready");
-//            //telemetry.update();
-//        //}
-//        //prop position for autonomous, auto = prop position
-//        //auto = bluepropPipeline.getPropPosition();
-//        //telemetry.addData("blue Prop Position", bluepropPipeline.getPropPosition());
-//        //telemetry.update();
-//    }
+    public static double LATERAL_MULTIPLIER = 1.70;
 
-//    public String getOutString(){
-//        return bluepropPipeline.getPropPosition();
-//
-//    }
+    public static double VX_WEIGHT = 1;
+    public static double VY_WEIGHT = 1;
+    public static double OMEGA_WEIGHT = 1;
 
-//    public void LEDcontrol(){
-//
-//        if (!proximityOne.getState()) {
-//            checkFirst = true;
-//        } else {
-//            checkFirst = false;
-//        }
-//
-//        if (!proximityTwo.getState()) {
-//            checkSecond = true;
-//        } else {
-//            checkSecond = false;
-//        }
-//
-//        if (checkFirst){
-//            if (checkSecond){
-//                pixelCount = 2;
-//            } else {
-//                pixelCount = 1;
-//            }
-//        } else if (checkSecond){
-//            pixelCount = 1;
-//        } else if (!checkFirst && !checkSecond) {
-//            pixelCount = 0;
-//        }
-//
-//        switch (state) {
-//            case idle:
-//                //IF WE HAVE NO PIXELS or 1 AND OUR INTAKE ARMS ARE IN THE MIDDLE
-//                if (intakeLeft.getPosition() == .07 && pixelCount <= 1){
-//                    lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.DARK_BLUE);
-//                } else if (intakeLeft.getPosition() == 0 && pixelCount <= 1){
-//                    lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HOT_PINK);
-//                } else if (checkFirst && checkSecond){
-//                    //we got the pixels right?
-//                    lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.DARK_RED);
-//                } else {
-//                    //IF NONE OF THE OTHER CONDITIONS APPLY
-//                    lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
-//                }
-//
-//                break;
-//            case liftlowering:
-//
-//                if (bottomLimit.isPressed()){
-//                    lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_GRAY);
-//                } else {
-//                    lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED_ORANGE);
-//                }
-//                break;
-//            default:
-//                state = robotState.idle;
-//                break;
-//        }
-//
-//    }
+    private TrajectorySequenceRunner trajectorySequenceRunner;
 
-//    public void intakeControl(){
-//        armSns.getState();
-//        flapSns.getState();
-//
-//        switch (iState){
-//            case intake:
-//                if (checkSecond && checkFirst){
-//                    iState = intakeState.off;
-//                }
-//
-//                break;
-//            case off:
-//                if (!flapSns.getState()){
-//                    if (checkSecond && checkFirst){
-//
-//                    }
-//                }
-//                break;
-//            default:
-//                iState = intakeState.off;
-//        }
-//    }
+    private static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, TRACK_WIDTH);
+    private static final TrajectoryAccelerationConstraint ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
+
+    private TrajectoryFollower follower;
+
+    private List<DcMotorEx> motors;
+
+    private IMU imu;
+    private VoltageSensor batteryVoltageSensor;
+
+    private List<Integer> lastEncPositions = new ArrayList<>();
+    private List<Integer> lastEncVels = new ArrayList<>();
+
+    public hardwareCS(HardwareMap hardwareMap) {
+        super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
+
+        follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
+                new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
+
+        LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
+
+        batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
+
+        for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
 
 
+
+        m4 = hardwareMap.get(DcMotorEx.class, "m4");
+        m1 = hardwareMap.get(DcMotorEx.class, "m1");
+        m3 = hardwareMap.get(DcMotorEx.class, "m3");
+        m2 = hardwareMap.get(DcMotorEx.class, "m2");
+
+        motors = Arrays.asList(m4, m4, m3, m2);
+
+        for (DcMotorEx motor : motors) {
+            MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
+            motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
+            motor.setMotorType(motorConfigurationType);
+        }
+
+        if (RUN_USING_ENCODER) {
+            setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
+        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        if (RUN_USING_ENCODER && MOTOR_VELO_PID != null) {
+            setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID);
+        }
+
+        // TODO: reverse any motors using DcMotor.setDirection()
+        m4.setDirection(DcMotorSimple.Direction.FORWARD);
+        m3.setDirection(DcMotorSimple.Direction.FORWARD);
+        m1.setDirection(DcMotorSimple.Direction.REVERSE);
+        m2.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+        List<Integer> lastTrackingEncPositions = new ArrayList<>();
+        List<Integer> lastTrackingEncVels = new ArrayList<>();
+
+        // TODO: if desired, use setLocalizer() to change the localization method
+        setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels));
+
+        trajectorySequenceRunner = new TrajectorySequenceRunner(
+                follower, HEADING_PID, batteryVoltageSensor,
+                lastEncPositions, lastEncVels, lastTrackingEncPositions, lastTrackingEncVels
+        );
+    }
+
+    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
+        return new TrajectoryBuilder(startPose, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
+    }
+
+    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, boolean reversed) {
+        return new TrajectoryBuilder(startPose, reversed, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
+    }
+
+    public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, double startHeading) {
+        return new TrajectoryBuilder(startPose, startHeading, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
+    }
+
+    public TrajectorySequenceBuilder trajectorySequenceBuilder(Pose2d startPose) {
+        return new TrajectorySequenceBuilder(
+                startPose,
+                VEL_CONSTRAINT, ACCEL_CONSTRAINT,
+                MAX_ANG_VEL, MAX_ANG_ACCEL
+        );
+    }
+
+    public void turnAsync(double angle) {
+        trajectorySequenceRunner.followTrajectorySequenceAsync(
+                trajectorySequenceBuilder(getPoseEstimate())
+                        .turn(angle)
+                        .build()
+        );
+    }
+
+    public void turn(double angle) {
+        turnAsync(angle);
+        waitForIdle();
+    }
+
+    public void followTrajectoryAsync(Trajectory trajectory) {
+        trajectorySequenceRunner.followTrajectorySequenceAsync(
+                trajectorySequenceBuilder(trajectory.start())
+                        .addTrajectory(trajectory)
+                        .build()
+        );
+    }
+
+    public void followTrajectory(Trajectory trajectory) {
+        followTrajectoryAsync(trajectory);
+        waitForIdle();
+    }
+
+    public void followTrajectorySequenceAsync(TrajectorySequence trajectorySequence) {
+        trajectorySequenceRunner.followTrajectorySequenceAsync(trajectorySequence);
+    }
+
+    public void followTrajectorySequence(TrajectorySequence trajectorySequence) {
+        followTrajectorySequenceAsync(trajectorySequence);
+        waitForIdle();
+    }
+
+    public Pose2d getLastError() {
+        return trajectorySequenceRunner.getLastPoseError();
+    }
+
+    public void update() {
+        updatePoseEstimate();
+        DriveSignal signal = trajectorySequenceRunner.update(getPoseEstimate(), getPoseVelocity());
+        if (signal != null) setDriveSignal(signal);
+    }
+
+    public void waitForIdle() {
+        while (!Thread.currentThread().isInterrupted() && isBusy())
+            update();
+    }
+
+    public boolean isBusy() {
+        return trajectorySequenceRunner.isBusy();
+    }
+
+    public void setMode(DcMotor.RunMode runMode) {
+        for (DcMotorEx motor : motors) {
+            motor.setMode(runMode);
+        }
+    }
+
+    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
+        for (DcMotorEx motor : motors) {
+            motor.setZeroPowerBehavior(zeroPowerBehavior);
+        }
+    }
+
+    public void setPIDFCoefficients(DcMotor.RunMode runMode, PIDFCoefficients coefficients) {
+        PIDFCoefficients compensatedCoefficients = new PIDFCoefficients(
+                coefficients.p, coefficients.i, coefficients.d,
+                coefficients.f * 12 / batteryVoltageSensor.getVoltage()
+        );
+
+        for (DcMotorEx motor : motors) {
+            motor.setPIDFCoefficients(runMode, compensatedCoefficients);
+        }
+    }
+
+    public void setWeightedDrivePower(Pose2d drivePower) {
+        Pose2d vel = drivePower;
+
+        if (Math.abs(drivePower.getX()) + Math.abs(drivePower.getY())
+                + Math.abs(drivePower.getHeading()) > 1) {
+            // re-normalize the powers according to the weights
+            double denom = VX_WEIGHT * Math.abs(drivePower.getX())
+                    + VY_WEIGHT * Math.abs(drivePower.getY())
+                    + OMEGA_WEIGHT * Math.abs(drivePower.getHeading());
+
+            vel = new Pose2d(
+                    VX_WEIGHT * drivePower.getX(),
+                    VY_WEIGHT * drivePower.getY(),
+                    OMEGA_WEIGHT * drivePower.getHeading()
+            ).div(denom);
+        }
+
+        setDrivePower(vel);
+    }
+
+    @NonNull
+    @Override
+    public List<Double> getWheelPositions() {
+        lastEncPositions.clear();
+
+        List<Double> wheelPositions = new ArrayList<>();
+        for (DcMotorEx motor : motors) {
+            int position = motor.getCurrentPosition();
+            lastEncPositions.add(position);
+            wheelPositions.add(encoderTicksToInches(position));
+        }
+        return wheelPositions;
+    }
+
+    @Override
+    public List<Double> getWheelVelocities() {
+        lastEncVels.clear();
+
+        List<Double> wheelVelocities = new ArrayList<>();
+        for (DcMotorEx motor : motors) {
+            int vel = (int) motor.getVelocity();
+            lastEncVels.add(vel);
+            wheelVelocities.add(encoderTicksToInches(vel));
+        }
+        return wheelVelocities;
+    }
+
+    @Override
+    public void setMotorPowers(double v, double v1, double v2, double v3) {
+        m4.setPower(v);
+        m1.setPower(v1);
+        m3.setPower(v2);
+        m2.setPower(v3);
+    }
+
+    @Override
+    public double getRawExternalHeading() {
+        return 0.0;
+    }
+
+    @Override
+    public Double getExternalHeadingVelocity() {
+        return 0.0;
+    }
+
+    public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
+        return new MinVelocityConstraint(Arrays.asList(
+                new AngularVelocityConstraint(maxAngularVel),
+                new MecanumVelocityConstraint(maxVel, trackWidth)
+        ));
+    }
+
+    public static TrajectoryAccelerationConstraint getAccelerationConstraint(double maxAccel) {
+        return new ProfileAccelerationConstraint(maxAccel);
+    }
 }

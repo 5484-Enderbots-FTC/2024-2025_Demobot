@@ -14,8 +14,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.PATCHY.PIPELINES.redpropPipeline;
-import org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.PATCHY.hardwareCS;
 import org.firstinspires.ftc.vision.VisionPortal;
 
@@ -31,8 +29,9 @@ public class RedPurplePixel extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        hardwareCS robot = new hardwareCS();
-        robot.inithardware(hardwareMap);
+        hardwareCS drive = new hardwareCS(hardwareMap);
+
+        drive.inithardware(hardwareMap);
 
         mtrI =  hardwareMap.get(DcMotorEx.class, "mtrI");
         mtrI.setZeroPowerBehavior(BRAKE);
@@ -62,16 +61,15 @@ public class RedPurplePixel extends LinearOpMode {
             telemetry.addData("Red Prop Position", redpropPipeline.getPropPosition());
             telemetry.update();
 
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Pose2d startPose = new Pose2d(0,0, Math.toRadians(0));
 
 //        TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPose)
 //                .addTemporalMarker(0, () -> {
-//                    robot.intakeRight.setPosition(.94);
-//                    robot.gripper.setPosition(.6);
+//                    drive.intakeRight.setPosition(.94);
+//                    drive.gripper.setPosition(.6);
 //                })
 //                .addTemporalMarker(0.3, () -> {
-//                    robot.intakeLeft.setPosition(.027);
+//                    drive.intakeLeft.setPosition(.027);
 //                })
 //                        .forward(22)
 //                                .build();
@@ -107,7 +105,7 @@ public class RedPurplePixel extends LinearOpMode {
 
         waitForStart();
 
-//        robot.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
+//        drive.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
 
         if (isStopRequested()) return;
 

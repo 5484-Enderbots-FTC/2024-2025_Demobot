@@ -3,6 +3,11 @@ package org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.io.File;
+import javax.xml.bind.Unmarshaller;
 
 /*
  * Constants shared between multiple drive types.
@@ -15,6 +20,8 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
  * These are not the only parameters; some are located in the localizer classes, drive base classes,
  * and op modes themselves.
  */
+
+@XmlRootElement
 @Config
 public class DriveConstants {
 
@@ -54,6 +61,7 @@ public class DriveConstants {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
+
     public static double kV = 0.0194;
     public static double kA = 0.0028;
     public static double kStatic = 0.001;
@@ -91,4 +99,11 @@ public class DriveConstants {
         // see https://docs.google.com/document/d/1tyWrXDfMidwYyP_5H4mZyVgaEswhOC35gvdmP-V-5hA/edit#heading=h.61g9ixenznbx
         return 32767 / ticksPerSecond;
     }
+
+    private DriveConstants readFromXml(String filePath2) throws Exception {
+        JAXBContext context = JAXBContext.newInstance(DriveConstants.class);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        return (DriveConstants) unmarshaller.unmarshal(new File(filePath2));
+    }
 }
+

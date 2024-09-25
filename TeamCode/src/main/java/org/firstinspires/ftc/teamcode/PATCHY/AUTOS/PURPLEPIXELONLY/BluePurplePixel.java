@@ -16,7 +16,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.PATCHY.PIPELINES.bluepropPipeline;
-import org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.RoadrunnerUtilStuff.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.PATCHY.hardwareCS;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -33,13 +32,13 @@ public class BluePurplePixel extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        hardwareCS robot = new hardwareCS();
-        robot.inithardware(hardwareMap);
+        hardwareCS drive = new hardwareCS(hardwareMap);
+        drive.inithardware(hardwareMap);
 
-        robot.m1.setDirection(DcMotorSimple.Direction.REVERSE);
-        robot.m3.setDirection(DcMotorSimple.Direction.FORWARD);
-        robot.m4.setDirection(DcMotorSimple.Direction.REVERSE);
-        robot.m2.setDirection(DcMotorSimple.Direction.FORWARD);
+        drive.m1.setDirection(DcMotorSimple.Direction.REVERSE);
+        drive.m3.setDirection(DcMotorSimple.Direction.FORWARD);
+        drive.m4.setDirection(DcMotorSimple.Direction.REVERSE);
+        drive.m2.setDirection(DcMotorSimple.Direction.FORWARD);
 
         mtrI =  hardwareMap.get(DcMotorEx.class, "mtrI");
         mtrI.setZeroPowerBehavior(BRAKE);
@@ -78,15 +77,13 @@ public class BluePurplePixel extends LinearOpMode {
         }
 
 
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-
 //        Trajectory traj1 = drive.trajectoryBuilder(new Pose2d())
 //                .addTemporalMarker(0, () -> {
-//                    robot.intakeRight.setPosition(.94);
-//                    robot.gripper.setPosition(.6);
+//                    drive.intakeRight.setPosition(.94);
+//                    drive.gripper.setPosition(.6);
 //                })
 //                .addTemporalMarker(0.3, () -> {
-//                    robot.intakeLeft.setPosition(.027);
+//                    drive.intakeLeft.setPosition(.027);
 //                })
 //                .forward(20)
 //                .build();
@@ -129,14 +126,14 @@ public class BluePurplePixel extends LinearOpMode {
 
         waitForStart();
         auto = bluepropPipeline.getPropPosition();
-//        robot.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
+//        drive.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
 
         telemetry.addLine(auto);
         telemetry.update();
         if (isStopRequested()) return;
 
-//        robot.intakeRight.setPosition(0.94);
-//        robot.intakeLeft.setPosition(0.027);
+//        drive.intakeRight.setPosition(0.94);
+//        drive.intakeLeft.setPosition(0.027);
 //
 //        drive.followTrajectory(traj1);
 
