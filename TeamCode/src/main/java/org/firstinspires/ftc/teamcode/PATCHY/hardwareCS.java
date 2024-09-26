@@ -71,55 +71,14 @@ public class hardwareCS extends MecanumDrive {
     public DcMotorEx m3; // mtrBR
     public DcMotorEx m1; // mtrBL
 
-//    public DcMotor mtrI;
-//
-//    public DcMotor mtrHang;
 
     public HardwareMap hw = null;
 
-    //auto things
-    public String auto;
-    public VisionPortal portal;
-    public org.firstinspires.ftc.teamcode.PATCHY.PIPELINES.bluepropPipeline bluepropPipeline;
+
+    public void inithardware() {
 
 
-    public enum robotState {
-        intaking,
-        idle,
-        liftlowering;
-    }
 
-    public enum intakeState {
-        off,
-        intake
-    }
-
-    //is the pixel near the proximity sensor boolean control
-    public boolean checkFirst;
-    public boolean checkSecond;
-    public robotState state = robotState.idle;
-    public intakeState iState = intakeState.off;
-
-
-    public void inithardware(HardwareMap thisHwMap) {
-        hw = thisHwMap;
-
-
-        m1 = hw.get(DcMotorEx.class, "m1"); // mtrBL
-        m1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        m1.setDirection(DcMotorEx.Direction.FORWARD);
-
-        m3 = hw.get(DcMotorEx.class, "m3"); // mtrBR
-        m3.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        m3.setDirection(DcMotorEx.Direction.REVERSE);
-
-        m4 = hw.get(DcMotorEx.class, "m4"); // mtrFL
-        m4.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        m4.setDirection(DcMotorEx.Direction.REVERSE);
-
-        m2 = hw.get(DcMotorEx.class, "m2"); // mtrFL
-        m2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        m2.setDirection(DcMotorEx.Direction.REVERSE);
 
 //        }
 //    }
@@ -154,6 +113,8 @@ public class hardwareCS extends MecanumDrive {
     public hardwareCS(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
+        hw = hardwareMap;
+
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
 
@@ -165,14 +126,24 @@ public class hardwareCS extends MecanumDrive {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
+        m1 = hw.get(DcMotorEx.class, "motor1"); // mtrBL
+        m1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
+        m3 = hw.get(DcMotorEx.class, "motor3"); // mtrBR
+        m3.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        m4 = hardwareMap.get(DcMotorEx.class, "m4");
-        m1 = hardwareMap.get(DcMotorEx.class, "m1");
-        m3 = hardwareMap.get(DcMotorEx.class, "m3");
-        m2 = hardwareMap.get(DcMotorEx.class, "m2");
+        m4 = hw.get(DcMotorEx.class, "motor4"); // mtrFL
+        m4.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        motors = Arrays.asList(m4, m4, m3, m2);
+        m2 = hw.get(DcMotorEx.class, "motor2"); // mtrFL
+        m2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+        motors = Arrays.asList(m4, m1, m3, m2);
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////
+        //
+        // DO NOT MESS WITH THIS, THIS WAS PROVIDED BY THE FTC ROADRUNNER LIBRARIES
+        //
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
@@ -194,7 +165,7 @@ public class hardwareCS extends MecanumDrive {
         m4.setDirection(DcMotorSimple.Direction.FORWARD);
         m3.setDirection(DcMotorSimple.Direction.FORWARD);
         m1.setDirection(DcMotorSimple.Direction.REVERSE);
-        m2.setDirection(DcMotorSimple.Direction.REVERSE);
+        m2.setDirection(DcMotorSimple.Direction.FORWARD);
 
 
         List<Integer> lastTrackingEncPositions = new ArrayList<>();
