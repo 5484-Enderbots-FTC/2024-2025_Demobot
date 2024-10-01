@@ -109,6 +109,7 @@ public class hardwareCS extends MecanumDrive {
 
     private List<Integer> lastEncPositions = new ArrayList<>();
     private List<Integer> lastEncVels = new ArrayList<>();
+    SparkFunOTOS myOtos;
 
     public hardwareCS(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
@@ -139,6 +140,8 @@ public class hardwareCS extends MecanumDrive {
         m2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         motors = Arrays.asList(m4, m1, m3, m2);
+
+        myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
 
         ///////////////////////////////////////////////////////////////////////////////////////////////
         //
