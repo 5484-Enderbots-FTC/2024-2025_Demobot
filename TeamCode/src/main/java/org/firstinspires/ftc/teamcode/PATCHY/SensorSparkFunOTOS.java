@@ -9,9 +9,13 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.teamcode.PATCHY.hardwareCS;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -30,24 +34,40 @@ import java.util.Locale;
 //@Disabled
 public class SensorSparkFunOTOS extends LinearOpMode {
     // Create an instance of the sensor
-    hardwareCS drive = new hardwareCS(hardwareMap);
+    //hardwareCS drive = new hardwareCS(hardwareMap);
     boolean logToFile = false;
+    SparkFunOTOS myOtos;
 
     @Override
     public void runOpMode() throws InterruptedException {
         // Get a reference to the sensor
-
+//        telemetry.addLine("Hello, World!");
+//        telemetry.update();
+//        Thread.sleep(10000);
 
         FileWriter logFile = null;
-        String fileLocation = "C:\\log.csv";
-
+        String fileLocation = "";
         try {
-            File myObj = new File(fileLocation);
-            if (myObj.createNewFile()) {
+            telemetry.addLine("Initialization Started");
+            telemetry.update();
+            Thread.sleep(2000);
+
+            //String fileLocation = "C:\\log.csv";
+            //fileLocation = Paths.get("").toAbsolutePath().toString() + "\\log.csv";
+            fileLocation = AppUtil.ROOT_FOLDER + "/RoadRunner/logs/logging.csv";
+            telemetry.addLine(fileLocation);
+
+            File file = new File(fileLocation);
+
+            if (!file.exists()) {
+                file.createNewFile();
                 telemetry.addLine("Created file " + fileLocation);
+                telemetry.update();
             }
         } catch (IOException e) {
-            telemetry.addLine("Error creating a file.");
+            telemetry.addLine("Error creating a file." + e.toString());
+            telemetry.update();
+            Thread.sleep(10000);
         }
 
         try {
@@ -55,14 +75,19 @@ public class SensorSparkFunOTOS extends LinearOpMode {
         } catch (IOException e) {
             telemetry.addLine("Error opening writer at location: " + fileLocation +
                     "\n please fix this and try again. The program will now exit.");
+            telemetry.update();
+            Thread.sleep(10000);
             throw new InterruptedException();
         }
 
         try {
+            myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
             telemetry.addLine("Press a to toggle logging to file.");
 
             // Write the header to the file.
             logFile.write("Date Time, X coordinate, Y coordinate, Heading angle\n");
+
+            logFile.flush();
 
             // All the configuration for the OTOS is done in this helper method, check it out!
             configureOtos();
@@ -73,26 +98,26 @@ public class SensorSparkFunOTOS extends LinearOpMode {
             // Loop until the OpMode ends
             while (opModeIsActive()) {
 
-                drive.setWeightedDrivePower(
-                        new Pose2d(
-                                gamepad1.left_stick_y * (1 - (gamepad1.right_trigger * 0.7)),
-                                gamepad1.left_stick_x * (1 - (gamepad1.right_trigger * 0.7)),
-                                gamepad1.right_stick_x * (1 - (gamepad1.right_trigger * 0.7))
-                        )
-                );
+//                drive.setWeightedDrivePower(
+//                        new Pose2d(
+//                                gamepad1.left_stick_y * (1 - (gamepad1.right_trigger * 0.7)),
+//                                gamepad1.left_stick_x * (1 - (gamepad1.right_trigger * 0.7)),
+//                                gamepad1.right_stick_x * (1 - (gamepad1.right_trigger * 0.7))
+//                        )
+//                );
 
                 // Get the latest position, which includes the x and y coordinates, plus the
                 // heading angle
-                SparkFunOTOS.Pose2D pos = drive.myOtos.getPosition();
+                SparkFunOTOS.Pose2D pos = myOtos.getPosition();
 
                 // Reset the tracking if the user requests it
                 if (gamepad1.y) {
-                    drive.myOtos.resetTracking();
+                    myOtos.resetTracking();
                 }
 
                 // Re-calibrate the IMU if the user requests it
                 if (gamepad1.x) {
-                    drive.myOtos.calibrateImu();
+                    myOtos.calibrateImu();
                 }
 
                 if (gamepad1.a) {
@@ -118,13 +143,21 @@ public class SensorSparkFunOTOS extends LinearOpMode {
                 String formattedDateTime = formatter.format(now);
                 logFile.write(formattedDateTime+ "," + pos.x + "," + pos.y + "," + pos.h + "\n");
 
+                // Last time I tested this the write to file wasn't working. Pretty sure it's
+                // because the file wasn't being closed... Just in case that wasn't it flushing
+                // the buffer to ensure that it's being written to the file.
+                logFile.flush();
+
                 // Update the telemetry on the driver station
                 telemetry.update();
             }
+            logFile.close();
 
 
         } catch(Exception e) {
             telemetry.addLine("Error in runOpMode: " + e.toString());
+            telemetry.update();
+            Thread.sleep(10000);
         }
 
 
@@ -140,9 +173,9 @@ public class SensorSparkFunOTOS extends LinearOpMode {
         // stored in the sensor, it's part of the library, so you need to set at the
         // start of all your programs.
         // myOtos.setLinearUnit(SparkFunOTOS.LinearUnit.METERS);
-        drive.myOtos.setLinearUnit(SparkFunOTOS.LinearUnit.INCHES);
+        myOtos.setLinearUnit(SparkFunOTOS.LinearUnit.INCHES);
         // myOtos.setAngularUnit(SparkFunOTOS.AngularUnit.RADIANS);
-        drive.myOtos.setAngularUnit(SparkFunOTOS.AngularUnit.DEGREES);
+        myOtos.setAngularUnit(SparkFunOTOS.AngularUnit.DEGREES);
 
         // Assuming you've mounted your sensor to a robot and it's not centered,
         // you can specify the offset for the sensor relative to the center of the
@@ -156,7 +189,7 @@ public class SensorSparkFunOTOS extends LinearOpMode {
         // would be {-5, 10, -90}. These can be any value, even the angle can be
         // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
         SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, 0, 0);
-        drive.myOtos.setOffset(offset);
+        myOtos.setOffset(offset);
 
         // Here we can set the linear and angular scalars, which can compensate for
         // scaling issues with the sensor measurements. Note that as of firmware
@@ -174,8 +207,8 @@ public class SensorSparkFunOTOS extends LinearOpMode {
         // multiple speeds to get an average, then set the linear scalar to the
         // inverse of the error. For example, if you move the robot 100 inches and
         // the sensor reports 103 inches, set the linear scalar to 100/103 = 0.971
-        drive.myOtos.setLinearScalar(1.0);
-        drive.myOtos.setAngularScalar(1.0);
+        myOtos.setLinearScalar(1.0);
+        myOtos.setAngularScalar(1.0);
 
         // The IMU on the OTOS includes a gyroscope and accelerometer, which could
         // have an offset. Note that as of firmware version 1.0, the calibration
@@ -187,23 +220,23 @@ public class SensorSparkFunOTOS extends LinearOpMode {
         // to wait until the calibration is complete. If no parameters are provided,
         // it will take 255 samples and wait until done; each sample takes about
         // 2.4ms, so about 612ms total
-        drive.myOtos.calibrateImu();
+        myOtos.calibrateImu();
 
         // Reset the tracking algorithm - this resets the position to the origin,
         // but can also be used to recover from some rare tracking errors
-        drive.myOtos.resetTracking();
+        myOtos.resetTracking();
 
         // After resetting the tracking, the OTOS will report that the robot is at
         // the origin. If your robot does not start at the origin, or you have
         // another source of location information (eg. vision odometry), you can set
         // the OTOS location to match and it will continue to track from there.
         SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(0, 0, 0);
-        drive.myOtos.setPosition(currentPosition);
+        myOtos.setPosition(currentPosition);
 
         // Get the hardware and firmware version
         SparkFunOTOS.Version hwVersion = new SparkFunOTOS.Version();
         SparkFunOTOS.Version fwVersion = new SparkFunOTOS.Version();
-        drive.myOtos.getVersionInfo(hwVersion, fwVersion);
+        myOtos.getVersionInfo(hwVersion, fwVersion);
 
         telemetry.addLine("OTOS configured! Press start to get position data!");
         telemetry.addLine();
