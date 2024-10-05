@@ -70,6 +70,7 @@ public class hardwareCS extends MecanumDrive {
     public DcMotorEx m2; // mtrFR
     public DcMotorEx m3; // mtrBR
     public DcMotorEx m1; // mtrBL
+    public DcMotorEx slidesMtr;
 
 
     public HardwareMap hw = null;
@@ -77,12 +78,7 @@ public class hardwareCS extends MecanumDrive {
 
     public void inithardware() {
 
-
-
-
-//        }
-//    }
-
+        slidesMtr = hw.get(DcMotorEx.class, "slides");
 
     }
 

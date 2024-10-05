@@ -13,12 +13,14 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.math.MathContext.*;
+
 import org.firstinspires.ftc.teamcode.PATCHY.hardwareCS;
 import org.firstinspires.ftc.teamcode.PATCHY.pocCode.INTAKE.IntakeServo;
 //
 
 
-@TeleOp(name = "CenterstageTeleop", group = "Linear Opmode")
+@TeleOp(name = "Demobot TeleOp", group = "Linear Opmode")
 //@Disabled
 public class CenterstageTeleop extends LinearOpMode {
 
@@ -51,6 +53,9 @@ public class CenterstageTeleop extends LinearOpMode {
             //  |||||||||||||||||||||||||||||
             //  VVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
+            if (Math.abs(gamepad1.right_stick_y) > 0.0){
+                drive.slidesMtr.setPower(gamepad1.right_stick_y * (1 - gamepad1.right_trigger * .5));
+            }
 
 
 
