@@ -5,8 +5,20 @@
 */
 package org.firstinspires.ftc.teamcode.PATCHY;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.teamcode.PATCHY.hardwareCS;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /*
  * This OpMode illustrates how to use the SparkFun Qwiic Optical Tracking Odometry Sensor (OTOS)
@@ -22,48 +34,133 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 //@Disabled
 public class SensorSparkFunOTOS extends LinearOpMode {
     // Create an instance of the sensor
+    //hardwareCS drive = new hardwareCS(hardwareMap);
+    boolean logToFile = false;
     SparkFunOTOS myOtos;
 
     @Override
     public void runOpMode() throws InterruptedException {
         // Get a reference to the sensor
-        myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
+//        telemetry.addLine("Hello, World!");
+//        telemetry.update();
+//        Thread.sleep(10000);
 
-        // All the configuration for the OTOS is done in this helper method, check it out!
-        configureOtos();
-
-        // Wait for the start button to be pressed
-        waitForStart();
-
-        // Loop until the OpMode ends
-        while (opModeIsActive()) {
-            // Get the latest position, which includes the x and y coordinates, plus the
-            // heading angle
-            SparkFunOTOS.Pose2D pos = myOtos.getPosition();
-
-            // Reset the tracking if the user requests it
-            if (gamepad1.y) {
-                myOtos.resetTracking();
-            }
-
-            // Re-calibrate the IMU if the user requests it
-            if (gamepad1.x) {
-                myOtos.calibrateImu();
-            }
-
-            // Inform user of available controls
-            telemetry.addLine("Press Y (triangle) on Gamepad to reset tracking");
-            telemetry.addLine("Press X (square) on Gamepad to calibrate the IMU");
-            telemetry.addLine();
-
-            // Log the position to the telemetry
-            telemetry.addData("X coordinate", pos.x);
-            telemetry.addData("Y coordinate", pos.y);
-            telemetry.addData("Heading angle", pos.h);
-
-            // Update the telemetry on the driver station
+        FileWriter logFile = null;
+        String fileLocation = "";
+        try {
+            telemetry.addLine("Initialization Started");
             telemetry.update();
+            Thread.sleep(2000);
+
+            //String fileLocation = "C:\\log.csv";
+            //fileLocation = Paths.get("").toAbsolutePath().toString() + "\\log.csv";
+            fileLocation = AppUtil.ROOT_FOLDER + "/RoadRunner/logs/logging.csv";
+            telemetry.addLine(fileLocation);
+
+            File file = new File(fileLocation);
+
+            if (!file.exists()) {
+                file.createNewFile();
+                telemetry.addLine("Created file " + fileLocation);
+                telemetry.update();
+            }
+        } catch (IOException e) {
+            telemetry.addLine("Error creating a file." + e.toString());
+            telemetry.update();
+            Thread.sleep(10000);
         }
+
+        try {
+            logFile = new FileWriter(fileLocation);
+        } catch (IOException e) {
+            telemetry.addLine("Error opening writer at location: " + fileLocation +
+                    "\n please fix this and try again. The program will now exit.");
+            telemetry.update();
+            Thread.sleep(10000);
+            throw new InterruptedException();
+        }
+
+        try {
+            myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
+            telemetry.addLine("Press a to toggle logging to file.");
+
+            // Write the header to the file.
+            logFile.write("Date Time, X coordinate, Y coordinate, Heading angle\n");
+
+            logFile.flush();
+
+            // All the configuration for the OTOS is done in this helper method, check it out!
+            configureOtos();
+
+            // Wait for the start button to be pressed
+            waitForStart();
+
+            // Loop until the OpMode ends
+            while (opModeIsActive()) {
+
+//                drive.setWeightedDrivePower(
+//                        new Pose2d(
+//                                gamepad1.left_stick_y * (1 - (gamepad1.right_trigger * 0.7)),
+//                                gamepad1.left_stick_x * (1 - (gamepad1.right_trigger * 0.7)),
+//                                gamepad1.right_stick_x * (1 - (gamepad1.right_trigger * 0.7))
+//                        )
+//                );
+
+                // Get the latest position, which includes the x and y coordinates, plus the
+                // heading angle
+                SparkFunOTOS.Pose2D pos = myOtos.getPosition();
+
+                // Reset the tracking if the user requests it
+                if (gamepad1.y) {
+                    myOtos.resetTracking();
+                }
+
+                // Re-calibrate the IMU if the user requests it
+                if (gamepad1.x) {
+                    myOtos.calibrateImu();
+                }
+
+                if (gamepad1.a) {
+                    logToFile = !logToFile;
+                }
+
+                // Inform user of available controls
+//                telemetry.addLine("Press Y (triangle) on Gamepad to reset tracking");
+//                telemetry.addLine("Press X (square) on Gamepad to calibrate the IMU");
+//                telemetry.addLine();
+
+                // Log the position to the telemetry
+                telemetry.addLine("logging to file: " + logToFile);
+                telemetry.addData("X coordinate", pos.x);
+                telemetry.addData("Y coordinate", pos.y);
+                telemetry.addData("Heading angle", pos.h);
+
+                // Get the current date.
+                Date now = new Date();
+
+                // Format the date and time
+                SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+                String formattedDateTime = formatter.format(now);
+                logFile.write(formattedDateTime+ "," + pos.x + "," + pos.y + "," + pos.h + "\n");
+
+                // Last time I tested this the write to file wasn't working. Pretty sure it's
+                // because the file wasn't being closed... Just in case that wasn't it flushing
+                // the buffer to ensure that it's being written to the file.
+                logFile.flush();
+
+                // Update the telemetry on the driver station
+                telemetry.update();
+            }
+            logFile.close();
+
+
+        } catch(Exception e) {
+            telemetry.addLine("Error in runOpMode: " + e.toString());
+            telemetry.update();
+            Thread.sleep(10000);
+        }
+
+
     }
 
     private void configureOtos() {
