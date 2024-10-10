@@ -122,16 +122,16 @@ public class hardwareCS extends MecanumDrive {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        m1 = hw.get(DcMotorEx.class, "motor1"); // mtrBL
+        m1 = hw.get(DcMotorEx.class, "m1"); // mtrBL
         m1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        m3 = hw.get(DcMotorEx.class, "motor3"); // mtrBR
+        m3 = hw.get(DcMotorEx.class, "m3"); // mtrBR
         m3.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        m4 = hw.get(DcMotorEx.class, "motor4"); // mtrFL
+        m4 = hw.get(DcMotorEx.class, "m4"); // mtrFL
         m4.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        m2 = hw.get(DcMotorEx.class, "motor2"); // mtrFL
+        m2 = hw.get(DcMotorEx.class, "m2"); // mtrFL
         m2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         motors = Arrays.asList(m4, m1, m3, m2);
@@ -158,10 +158,10 @@ public class hardwareCS extends MecanumDrive {
         }
 
         // TODO: reverse any motors using DcMotor.setDirection()
-        m4.setDirection(DcMotorSimple.Direction.FORWARD);
+        m4.setDirection(DcMotorSimple.Direction.REVERSE);
         m3.setDirection(DcMotorSimple.Direction.FORWARD);
         m1.setDirection(DcMotorSimple.Direction.REVERSE);
-        m2.setDirection(DcMotorSimple.Direction.FORWARD);
+        m2.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         List<Integer> lastTrackingEncPositions = new ArrayList<>();
