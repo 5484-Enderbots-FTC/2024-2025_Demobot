@@ -3,14 +3,33 @@ package org.firstinspires.ftc.teamcode.PATCHY.TELEOP;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+
+import org.firstinspires.ftc.teamcode.PATCHY.hardwareCS;
 
 @TeleOp
 public class NoPoseTele extends LinearOpMode {
+
+    public enum slideState{
+        free,
+        back,
+        forward
+    }
+
+    DcMotorEx slidesMtr;
+    TouchSensor zeroSlides;
+    Boolean memoryBit;
+
     @Override
     public void runOpMode() throws InterruptedException {
         // Declare our motors
         // Make sure your ID's match your configuration
+        slidesMtr = hardwareMap.get(DcMotorEx.class, "slides");
+        slidesMtr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slidesMtr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("m1");
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("m2");
@@ -21,6 +40,8 @@ public class NoPoseTele extends LinearOpMode {
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         DcMotor slidesMtr = hardwareMap.dcMotor.get("slides");
         slidesMtr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        slideState slides = slideState.free;
 
         // Reverse the right side motors. This may be wrong for your setup.
         // If your robot moves backwards when commanded to go forwards,
@@ -35,7 +56,7 @@ public class NoPoseTele extends LinearOpMode {
 
         while (opModeIsActive()) {
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
-            double x = gamepad1.left_stick_x * 1; // Counteract imperfect strafing
+            double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
             double rx = gamepad1.right_stick_x;
 
             // Denominator is the largest motor power (absolute value) or 1
@@ -61,11 +82,27 @@ public class NoPoseTele extends LinearOpMode {
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
 
-            if (Math.abs(gamepad1.right_stick_y) > 0.0){
-                slidesMtr.setPower(gamepad1.right_stick_y * (1 - gamepad1.right_trigger * .5));
+            if (Math.abs(gamepad1.right_stick_y) > 0.0 && Math.abs(slidesMtr.getCurrentPosition()) <= 1700 && Math.abs(slidesMtr.getCurrentPosition()) >= 10){
+                slidesMtr.setPower(gamepad1.right_stick_y * (1-gamepad1.right_trigger * .7));
+            } else if (gamepad1.right_stick_y > 0.0 && Math.abs(slidesMtr.getCurrentPosition()) >= 1700) {
+                slidesMtr.setPower(gamepad1.right_stick_y * (1 - (gamepad1.right_trigger * .7)));
+            } else if (gamepad1.right_stick_y < 0.0 && Math.abs(slidesMtr.getCurrentPosition()) <= 10) {
+                slidesMtr.setPower(gamepad1.right_stick_y * (1-gamepad1.right_trigger * .7));
             } else {
                 slidesMtr.setPower(0);
             }
+
+            if (zeroSlides.isPressed()){
+                slidesMtr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                memoryBit = false;
+            } else if (!zeroSlides.isPressed() && !memoryBit) {
+                slidesMtr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                memoryBit = true;
+            }
+
+            telemetry.addData("Slide State: ", slides);
+            telemetry.addData("mtr encoder: ", Math.abs(slidesMtr.getCurrentPosition()));
+            telemetry.addData("Slide Power: ", slidesMtr.getPower());
 
         }
     }

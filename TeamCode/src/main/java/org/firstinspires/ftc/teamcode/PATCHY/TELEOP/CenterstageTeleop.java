@@ -24,9 +24,16 @@ import org.firstinspires.ftc.teamcode.PATCHY.pocCode.INTAKE.IntakeServo;
 //@Disabled
 public class CenterstageTeleop extends LinearOpMode {
 
+    public enum slideState{
+        free,
+        back,
+        forward
+    }
+
     @Override
     public void runOpMode() throws InterruptedException {
         hardwareCS drive = new hardwareCS(hardwareMap);
+        slideState slides = slideState.free;
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -55,13 +62,54 @@ public class CenterstageTeleop extends LinearOpMode {
             //  |||||||||||||||||||||||||||||
             //  VVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
-            if (Math.abs(gamepad1.right_stick_y) > 0.0){
+
+           /* switch (slides){
+                case free:
+                    drive.slidesMtr.setPower(gamepad1.right_stick_y * (1-gamepad1.right_trigger * .7));
+                    if (Math.abs(drive.slidesMtr.getCurrentPosition()) >= 1700) {
+                        slides = slideState.back;
+                        break;
+                    } else if ((Math.abs(drive.slidesMtr.getCurrentPosition()) <= 10)) {
+                        slides = slideState.forward;
+                        break;
+                    }
+                case back:
+                    if (gamepad1.right_stick_y > 0.0 && Math.abs(drive.slidesMtr.getCurrentPosition()) >= 1700) {
+                    drive.slidesMtr.setPower(gamepad1.right_stick_y * (1 - (gamepad1.right_trigger * .7)));
+                    }
+                    if (Math.abs(drive.slidesMtr.getCurrentPosition()) <= 1600) {
+                        slides = slideState.free;
+                        break;
+                    }
+                    break;
+                case forward:
+                    if (gamepad1.right_stick_y < 0.0 && Math.abs(drive.slidesMtr.getCurrentPosition()) <= 10) {
+                        drive.slidesMtr.setPower(gamepad1.right_stick_y * (1 - gamepad1.right_trigger * .7));
+                    }
+                    if (Math.abs(drive.slidesMtr.getCurrentPosition()) >= 100) {
+                        slides = slideState.free;
+                        break;
+                    }
+                    break;
+                default:
+                    slides = slideState.free;
+            } */
+
+/* if (Math.abs(gamepad1.right_stick_y) > 0.0){
                 drive.slidesMtr.setPower(gamepad1.right_stick_y * (1 - gamepad1.right_trigger * .5));
             } else {
                 drive.slidesMtr.setPower(0);
+            }*/
+
+            if (Math.abs(gamepad1.right_stick_y) > 0.0 && Math.abs(drive.slidesMtr.getCurrentPosition()) <= 1700 && Math.abs(drive.slidesMtr.getCurrentPosition()) >= 0){
+                drive.slidesMtr.setPower(gamepad1.right_stick_y * (1-gamepad1.right_trigger * .7));
+            } else if (gamepad1.right_stick_y > 0.0 && Math.abs(drive.slidesMtr.getCurrentPosition()) >= 1700) {
+                drive.slidesMtr.setPower(gamepad1.right_stick_y * (1 - (gamepad1.right_trigger * .7)));
+            } else if (gamepad1.right_stick_y < 0.0 && Math.abs(drive.slidesMtr.getCurrentPosition()) <= 10) {
+                drive.slidesMtr.setPower(gamepad1.right_stick_y * (1-gamepad1.right_trigger * .7));
+            } else {
+                drive.slidesMtr.setPower(0);
             }
-
-
 
         }
 
