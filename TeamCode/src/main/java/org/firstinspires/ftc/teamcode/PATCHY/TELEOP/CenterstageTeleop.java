@@ -57,6 +57,8 @@ public class CenterstageTeleop extends LinearOpMode {
 
             if (Math.abs(gamepad1.right_stick_y) > 0.0){
                 drive.slidesMtr.setPower(gamepad1.right_stick_y * (1 - gamepad1.right_trigger * .5));
+            } else {
+                drive.slidesMtr.setPower(0);
             }
 
 

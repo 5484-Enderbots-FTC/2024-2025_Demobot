@@ -60,11 +60,13 @@ public class NoPoseTele extends LinearOpMode {
             backLeftMotor.setPower(backLeftPower);
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
+
             if (Math.abs(gamepad1.right_stick_y) > 0.0){
                 slidesMtr.setPower(gamepad1.right_stick_y * (1 - gamepad1.right_trigger * .5));
             } else {
                 slidesMtr.setPower(0);
             }
+
         }
     }
 }
