@@ -75,14 +75,51 @@ public class NoPoseTele extends LinearOpMode {
             telemetry.addLine(Double.toString(denominator));
             telemetry.update();
 
-
-
             frontLeftMotor.setPower(frontLeftPower);
             backLeftMotor.setPower(backLeftPower);
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
 
-            if (Math.abs(gamepad1.right_stick_y) > 0.0 && Math.abs(slidesMtr.getCurrentPosition()) <= 1700 && Math.abs(slidesMtr.getCurrentPosition()) >= 10){
+
+          /*  switch (slides){
+                case free:
+                    if (Math.abs(gamepad1.right_stick_y) > 0.0) {
+                        slidesMtr.setPower(gamepad1.right_stick_y * (1 - gamepad1.right_trigger * .7));
+                        if (Math.abs(slidesMtr.getCurrentPosition()) >= 1700) {
+                            slides = slideState.back;
+                            slidesMtr.setPower(0);
+                            break;
+                        } else if (Math.abs(slidesMtr.getCurrentPosition()) <= 10) {
+                            slides = slideState.forward;
+                            slidesMtr.setPower(0);
+                            break;
+                        }
+                    } else {
+                        slidesMtr.setPower(0);
+                    }
+                case forward:
+                    if (gamepad1.right_stick_y < 0.0){
+                        slidesMtr.setPower(gamepad1.right_stick_y * (1 - gamepad1.right_trigger * .7));
+                        if (Math.abs(slidesMtr.getCurrentPosition()) >= 300){
+                            slides = slideState.free;
+                            break;
+                        }
+                    } else {
+                        slidesMtr.setPower(0);
+                    }
+                case back:
+                    if (gamepad1.right_stick_y > 0.0){
+                        slidesMtr.setPower(gamepad1.right_stick_y * (1 - gamepad1.right_trigger * .7));
+                        if (Math.abs(slidesMtr.getCurrentPosition()) < 1500) {
+                            slides = slideState.free;
+                            break;
+                        }
+                    }
+                default:
+                    slides = slideState.free;
+            } */
+
+           if (Math.abs(gamepad1.right_stick_y) > 0.0 && Math.abs(slidesMtr.getCurrentPosition()) <= 1700 && Math.abs(slidesMtr.getCurrentPosition()) >= 10){
                 slidesMtr.setPower(gamepad1.right_stick_y * (1-gamepad1.right_trigger * .7));
             } else if (gamepad1.right_stick_y > 0.0 && Math.abs(slidesMtr.getCurrentPosition()) >= 1700) {
                 slidesMtr.setPower(gamepad1.right_stick_y * (1 - (gamepad1.right_trigger * .7)));
