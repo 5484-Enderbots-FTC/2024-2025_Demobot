@@ -20,7 +20,7 @@ public class NoPoseTele extends LinearOpMode {
 
     DcMotorEx slidesMtr;
     TouchSensor zeroSlides;
-    Boolean memoryBit;
+    Boolean memoryBit = true;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -29,6 +29,8 @@ public class NoPoseTele extends LinearOpMode {
         slidesMtr = hardwareMap.get(DcMotorEx.class, "slides");
         slidesMtr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slidesMtr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        zeroSlides = hardwareMap.touchSensor.get("ls");
 
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("m1");
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -56,7 +58,7 @@ public class NoPoseTele extends LinearOpMode {
 
         while (opModeIsActive()) {
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
-            double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
+            double x = gamepad1.left_stick_x * 1.2; // Counteract imperfect strafing
             double rx = gamepad1.right_stick_x;
 
             // Denominator is the largest motor power (absolute value) or 1
@@ -119,7 +121,7 @@ public class NoPoseTele extends LinearOpMode {
                     slides = slideState.free;
             } */
 
-           if (Math.abs(gamepad1.right_stick_y) > 0.0 && Math.abs(slidesMtr.getCurrentPosition()) <= 1700 && Math.abs(slidesMtr.getCurrentPosition()) >= 10){
+           if (Math.abs(gamepad1.right_stick_y) > 0.0 && Math.abs(slidesMtr.getCurrentPosition()) <= 1700 && Math.abs(slidesMtr.getCurrentPosition()) >= 0){
                 slidesMtr.setPower(gamepad1.right_stick_y * (1-gamepad1.right_trigger * .7));
             } else if (gamepad1.right_stick_y > 0.0 && Math.abs(slidesMtr.getCurrentPosition()) >= 1700) {
                 slidesMtr.setPower(gamepad1.right_stick_y * (1 - (gamepad1.right_trigger * .7)));
@@ -129,17 +131,19 @@ public class NoPoseTele extends LinearOpMode {
                 slidesMtr.setPower(0);
             }
 
-            if (zeroSlides.isPressed()){
+            if(!zeroSlides.isPressed() && !memoryBit) {
                 slidesMtr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                memoryBit = false;
-            } else if (!zeroSlides.isPressed() && !memoryBit) {
                 slidesMtr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                slidesMtr.setTargetPosition(50);
                 memoryBit = true;
+            } else if(zeroSlides.isPressed()) {
+                memoryBit = false;
             }
 
             telemetry.addData("Slide State: ", slides);
             telemetry.addData("mtr encoder: ", Math.abs(slidesMtr.getCurrentPosition()));
             telemetry.addData("Slide Power: ", slidesMtr.getPower());
+            telemetry.addData("Limit Switch Pressed?: ", zeroSlides.isPressed());
 
         }
     }
