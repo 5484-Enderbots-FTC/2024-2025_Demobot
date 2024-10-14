@@ -131,12 +131,12 @@ public class NoPoseTele extends LinearOpMode {
                 slidesMtr.setPower(0);
             }
 
-            if(!zeroSlides.isPressed() && !memoryBit) {
+            if(zeroSlides.isPressed() && !memoryBit) {
                 slidesMtr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 slidesMtr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 slidesMtr.setTargetPosition(50);
                 memoryBit = true;
-            } else if(zeroSlides.isPressed()) {
+            } else if(!zeroSlides.isPressed()) {
                 memoryBit = false;
             }
 
