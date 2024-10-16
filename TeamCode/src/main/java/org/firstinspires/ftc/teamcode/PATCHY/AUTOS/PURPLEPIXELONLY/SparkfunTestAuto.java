@@ -129,9 +129,30 @@ public class SparkfunTestAuto extends LinearOpMode {
         backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         SparkFunOTOS.Pose2D pos = myOtos.getPosition();
-        if (pos.h<deg) {
+        if (pos.h<deg && deg>0) {
             backRightMotor.setPower(1);
+            frontRightMotor.setPower(1);
+            backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            backLeftMotor.setPower(1);
+            frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            frontRightMotor.setPower(1);
+            backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        } else if (pos.h>deg && deg<0) {
+
+            backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            backRightMotor.setPower(1);
+            backLeftMotor.setPower(1);
+            frontRightMotor.setPower(1);
+            frontLeftMotor.setPower(1);
+            frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
+
         }
+
 
     }
 
